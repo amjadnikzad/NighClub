@@ -1,10 +1,13 @@
 import { IsEnum, IsString, Length } from "class-validator";
+import { GameTypes, HeartsGameModes } from "./types";
 
-enum HeartsGameModes  {
-    '4v4' = '4'
-}
 
-export class CreateHeartsDto {
+
+export class CreateGameDto {
+
+    @IsEnum(GameTypes)
+    gameType:GameTypes;
+
     @IsEnum(HeartsGameModes)
     gameMode:HeartsGameModes;
 
@@ -13,7 +16,7 @@ export class CreateHeartsDto {
     name:string;
 }
 
-export class JoinGameReqDto {
+export class JoinGameDto {
     @IsString()
     @Length(6,6)
     gameID:string;
