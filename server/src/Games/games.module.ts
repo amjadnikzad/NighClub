@@ -2,11 +2,11 @@ import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { GamesController } from "./games.controller";
 import { GamesService } from "./games.service";
-import { redisModule } from "src/modules.config";
+import { jwtModule, redisModule } from "src/modules.config";
 import { GamesRepository } from "./games.repository";
 
 @Module({
-  imports: [ConfigModule,redisModule],
+  imports: [ConfigModule,redisModule,jwtModule],
   controllers: [GamesController],
   providers: [GamesService,GamesRepository],
   exports: []
