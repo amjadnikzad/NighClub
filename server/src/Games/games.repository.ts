@@ -77,7 +77,7 @@ export class GamesRepository {
     this.logger.log(`Attempting to Add Player with UserID/name: ${userID}/${name} to gameID: ${gameID}`);
 
     const key = `games:${gameID}`;
-    const playersPath = './players';
+    const playersPath = '$.players';
 
     try {
         await this.redisClient.send_command(

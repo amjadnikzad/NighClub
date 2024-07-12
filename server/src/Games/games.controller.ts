@@ -19,8 +19,9 @@ export class GamesController {
 
   @Post('/create')
   async create(@Body() createGamesDto: CreateGameDto) {
-    Logger.log('New Game Created');
+   
     const result = await this.gamesService.createGame(createGamesDto);
+    
     return result;
   }
 
