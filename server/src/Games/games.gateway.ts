@@ -8,6 +8,7 @@ import {
 } from '@nestjs/websockets';
 import { GamesService } from './games.service';
 import { Namespace, Socket } from 'socket.io';
+import { SocketWithAuth } from './types';
 
 @WebSocketGateway({
   namespace:'games',
@@ -23,17 +24,17 @@ export class GamesGateway
     this.logger.log('WebSocket Gateway Intialized');
   }
 
-  handleConnection(client: Socket) {
+  handleConnection(client: SocketWithAuth) {
     const sockets = this.io.sockets;
 
-    this.logger.log(`A client WIth ID: ${client.id} has connected`);
+    this.logger.debug(`socket connected with userID: ${client.userID}, name: ${client.name}, gameID:${client.gameID}`)
     this.logger.debug(`There Are ${sockets.size} clients connected`);
   }
 
-  handleDisconnect(client: Socket) {
+  handleDisconnect(client: SocketWithAuth) {
     const sockets = this.io.sockets;
 
-    this.logger.log(`A client WIth ID: ${client.id} has Disconnected`);
+    this.logger.debug(`socket disconnected with userID: ${client.userID}, name: ${client.name}, gameID:${client.gameID}`)
     this.logger.debug(`There Are ${sockets.size} clients connected`);
   }
 }

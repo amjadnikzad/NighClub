@@ -3,6 +3,8 @@
 //Game mode types should be iplemented!! currently im just using simple deco type for prototyping!!
 //******************************************************************************** 
 
+import { Socket } from "socket.io";
+
 
 export enum GameTypes {
     'HEARTS' = "H"
@@ -85,6 +87,15 @@ export interface Game {
 };
 
 
+//Gaurd types
+
+export type AuthPayload = {
+    userID: string,
+    name: string,
+    gameID: string
+}
+
+export type SocketWithAuth = AuthPayload & Socket;
 
 // Shared types
 

@@ -1,7 +1,9 @@
 import { INestApplicationContext, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { ServerOptions, Server } from 'socket.io';
+import { SocketWithAuth } from './Games/types';
 
 export class SocketIOAdapter extends IoAdapter {
     private readonly logger = new Logger(SocketIOAdapter.name);
@@ -31,6 +33,27 @@ export class SocketIOAdapter extends IoAdapter {
         cors,
     };
 
-    return super.createIOServer(port, optionsWithCORS);
+    const jwtService = this.app.get(JwtService);
+    const server:Server = super.createIOServer(port, optionsWithCORS);
+    server.of('games').use(createTokenMiddleware(jwtService,this.logger));
+
+    return server;
   }
 }
+
+const createTokenMiddleware =
+    (jwtService:JwtService, logger:Logger)=> (socket: SocketWithAuth, next) => {
+        const token =
+                    socket.handshake.auth.token || socket.handshake.headers['token'];
+        logger.debug(`Validating Auth token before connection: ${token}`);
+
+        try {
+            const payload= jwtService.verify(token);
+            socket.userID = payload.sub;
+            socket.gameID = payload.gameID;
+            socket.name = payload.name;
+            next();
+        } catch {
+            next(new Error('ACCESS DENIED'))
+        }
+    }
