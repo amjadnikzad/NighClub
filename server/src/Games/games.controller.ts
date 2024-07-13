@@ -6,12 +6,14 @@ import {
   Param,
   Patch,
   Post,
-  Logger
+  Logger,
+  ValidationPipe,
+  UsePipes
 } from '@nestjs/common';
 import { CreateGameDto,JoinGameDto } from './dtos';
 import { GamesService } from './games.service';
 
-
+@UsePipes(new ValidationPipe())
 @Controller('games')
 export class GamesController {
   
