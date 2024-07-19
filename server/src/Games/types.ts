@@ -30,6 +30,7 @@ export type JoinGameFields = {
     name: string
 }
 
+
 //Repository Types
 export type CreateGameData = {
     userID:string,
@@ -41,7 +42,8 @@ export type AddPlayerData = {
     userID:string,
     gameID:string,
     name:string,
-};
+}
+
 
 
 

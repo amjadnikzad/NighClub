@@ -56,4 +56,9 @@ export class GamesService {
       accessToken: signedString
     };
   }
+
+  async getGameState(gameID:string) {
+    const gameState = await this.gamesRepository.getGameState(gameID);
+    return gameState;
+  }
 }

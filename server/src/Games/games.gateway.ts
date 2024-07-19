@@ -45,6 +45,6 @@ export class GamesGateway
 
   @SubscribeMessage('test')
   async test() {
-    throw new WsBadRequestException('Your Reques Is Unautorized');
+    throw new WsBadRequestException('Your Request Is Unautorized');
   }
 }

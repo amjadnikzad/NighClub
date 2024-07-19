@@ -31,3 +31,15 @@ export const distributeDeck = (numPlayers: number, deck: Deck): Card[][] => {
 
   return hands;
 };
+
+export const heartsGameHandler = (game,payload) => {
+
+};
+
+const heartsRoundHandler = () => {
+
+}
+
+const heartsHandHandler = () => {
+  
+}
