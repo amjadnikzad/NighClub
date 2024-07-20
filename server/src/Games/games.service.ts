@@ -37,7 +37,7 @@ export class GamesService {
     };
   }
 
-  async joinGame(fields: JoinGameFields) {
+  async getGameToken(fields: JoinGameFields) {
     const userID = createUserID();
     this.logger.debug(
       `Fetching game with ID:${fields.gameID} for user with id:${userID}`,
@@ -52,7 +52,7 @@ export class GamesService {
       }
     );
     return {
-      newPlayer: joinedGame,
+      newPlayer: joinedGame.players,
       accessToken: signedString
     };
   }

@@ -48,9 +48,11 @@ export type AddPlayerData = {
 
 
 //Game Types
+type OrderIndexType = 1|2|3|4;
 type Player = {
     PlayerID: string,
-    name: string
+    name: string,
+    orderIndex: OrderIndexType
 }
 /**
  * WFPTJ Stands Waiting For Players To Join It Could Be Both When The Game Is Initiated Or When A player Leaves The Game.
@@ -65,12 +67,13 @@ type GameSates = 'WFPTJ'|'ON_PROGRESS'|'fINISHED'|'STALE';
 
 export type Deck = Card[];
 
-type Round = {
-    scores: number[],
+type ScoreTuple = [OrderIndexType,number];
+interface Round {
+    scores: ScoreTuple[],
     turnNumber:number,
-    playersCards:Array<Card>[] ,
+    playersCards:Array<Card>[],
     handsPlayed:Array<Card>[],
-    playOrder:number[],
+    playOrder:OrderIndexType[],
     currentHand: {
         play:Array<Card>,
         whoIsTurn:number
@@ -85,9 +88,18 @@ export interface Game {
     scores:number[],
     gameMode: string,
     roundsPlayed: Array<number[]>,
-    currentRound: Round
+    currentRound: Round,
+    leavedPlayers: Player[]
 };
 
+export interface HeartsRound extends Round {
+    gameStage: 'SWAP'|'PLAY',
+    swapStack: Card[][]
+}
+
+export interface HeartsGame extends Game{
+    currentRound: HeartsRound,
+}
 
 //Gaurd types
 

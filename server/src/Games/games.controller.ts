@@ -10,7 +10,7 @@ import {
   ValidationPipe,
   UsePipes
 } from '@nestjs/common';
-import { CreateGameDto,JoinGameDto } from './dtos';
+import { CreateGameDto,GetGameTokenDto } from './dtos';
 import { GamesService } from './games.service';
 
 @UsePipes(new ValidationPipe())
@@ -28,9 +28,9 @@ export class GamesController {
   }
 
   @Post('/join')
-  async join(@Body() joinGameDto: JoinGameDto) {
+  async join(@Body() getGameTokenDTO: GetGameTokenDto) {
     Logger.log('Join request submitted');
-    const result = await this.gamesService.joinGame(joinGameDto);
+    const result = await this.gamesService.getGameToken(getGameTokenDTO);
     return result;
   }
   

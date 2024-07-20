@@ -16,7 +16,7 @@ export class CreateGameDto {
     name:string;
 }
 
-export class JoinGameDto {
+export class GetGameTokenDto {
     @IsString()
     @Length(6,6)
     gameID:string;

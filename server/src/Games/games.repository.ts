@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import { IORedisKey } from 'src/redis.module';
-import { AddPlayerData, CreateGameData, Deck, Game } from './types';
+import { AddPlayerData, CreateGameData, Deck, Game, HeartsGame } from './types';
 import { createDeck, distributeDeck } from './utils';
 
 @Injectable()
@@ -22,7 +22,7 @@ export class GamesRepository {
   }: CreateGameData): Promise<Game> {
     const deck: Deck = createDeck();
     const hands = distributeDeck(4, deck);
-    const initilizedGame: Game = {
+    const initilizedGame: HeartsGame = {
       gameID,
       adminID: userID,
       gameMode,
@@ -32,16 +32,24 @@ export class GamesRepository {
       roundsPlayed: [],
       scores: [0, 0, 0, 0],
       currentRound: {
-        scores: [0, 0, 0, 0],
+        scores: [
+          [1, 0],
+          [2, 0],
+          [3, 0],
+          [4, 0],
+        ],
         turnNumber: 1,
         handsPlayed: [],
         playersCards: [...[...hands]],
-        playOrder: [0, 1, 2, 3],
+        playOrder: [1, 2, 3, 4],
         currentHand: {
           play: [],
           whoIsTurn: 0,
         },
+        gameStage: 'SWAP',
+        swapStack: [],
       },
+      leavedPlayers: [],
     };
 
     this.logger.log(
@@ -76,7 +84,6 @@ export class GamesRepository {
     }
   }
 
-
   async getGame(gameID: string): Promise<Game> {
     this.logger.log(`Attemoting to get Game with this ${gameID}ID `);
 
@@ -97,7 +104,6 @@ export class GamesRepository {
     }
   }
 
-
   async getGameState(gameID: string): Promise<Game['state']> {
     this.logger.log(`Attempting to get game state with the ID of: ${gameID}`);
 
@@ -112,11 +118,12 @@ export class GamesRepository {
 
       return JSON.parse(currentState).toString();
     } catch (e) {
-        this.logger.error(`Failled to retrive a game state with this ${gameID} game id`);
+      this.logger.error(
+        `Failled to retrive a game state with this ${gameID} game id`,
+      );
       throw e;
     }
   }
-
 
   async addPlayer({ gameID, name, userID }: AddPlayerData): Promise<Game> {
     this.logger.log(
