@@ -46,7 +46,7 @@ export class GamesRepository {
           play: [],
           whoIsTurn: 0,
         },
-        gameStage: 'SWAP',
+        gameStage: 'PLAY',
         swapStack: [],
       },
       leavedPlayers: [],
@@ -141,19 +141,7 @@ export class GamesRepository {
         JSON.stringify({ userID, name }),
       );
 
-      const gameJSON = await this.redisClient.send_command(
-        'JSON.GET',
-        key,
-        '.',
-      );
-
-      const game = JSON.parse(gameJSON) as Game;
-      this.logger.debug(
-        `Current Players for this Game:${gameID}:`,
-        game.players,
-      );
-
-      return game;
+      return this.getGame(gameID);
     } catch (e) {
       this.logger.error(
         `Failed to add player with playerID/name:${userID}/${name} to game: ${gameID}`,
