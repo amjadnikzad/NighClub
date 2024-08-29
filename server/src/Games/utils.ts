@@ -1,4 +1,4 @@
-import { Deck, Card, Rank, Suit } from './types';
+import { Deck, Card, Rank, Suit, OrderIndexType } from './types';
 
 export const createDeck = (): Deck => {
   const deck: Deck = [];
@@ -34,9 +34,12 @@ export const distributeDeck = (numPlayers: number, deck: Deck): Card[][] => {
 
 export const heartsGameHandler = (game, payload) => {};
 
-const heartsRoundHandler = () => {};
+const heartsRoundResolver = () => {};
 
-const heartsHandHandler = () => {};
+const heartsHandResolver = ({act}) => {
+
+
+};
 
 const getCardValue = (card: Card): number => {
   const rank = card.rank;
@@ -84,3 +87,41 @@ const resolveDeck = (deck: Deck): number => {
   return winnerIndex.index;
 };
 
+/**
+ * Will Calculate Deck score based on Hearts rules.
+ * 
+ * 
+ * each card with hearts Suit will resloves in 1 score and the Queen of Spade 17 scores.
+ * 
+ * 
+ * @param {Deck} deck - it takes a deck in any size.
+ * @returns {number} it returns the value of Deck as a number.
+ * 
+ */
+const getHeartsDeckScore = (deck:Deck): number => {
+  const deckScore = deck.reduce((acc,card)=>{
+    switch(card.suit) {
+      case 'Hearts':
+        acc += 1;
+        break;
+      case 'Spades':
+        if(card.rank === 'Queen') acc += 17;
+        break;
+      default:
+        break;
+    }
+    return acc;
+    
+  },0);
+  return deckScore;
+}
+
+//game validation logic
+const doesItHaveTheCard = (cards:Card[][],playerIndex:OrderIndexType,requestedCard:Card): boolean => {
+  const playerCards =  cards[playerIndex-1];
+  return playerCards.some(card => card.rank === requestedCard.rank && card.suit === requestedCard.suit);
+};
+
+const isItPlayersTurn = (playerOrderIndex:OrderIndexType,whoIsTurn:number):boolean => {
+
+}
