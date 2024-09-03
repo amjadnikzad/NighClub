@@ -29,18 +29,36 @@ export class GamesGateway
     this.logger.log('WebSocket Gateway Intialized');
   }
 
-  handleConnection(client: SocketWithAuth) {
+  async handleConnection(client: SocketWithAuth) {
     const sockets = this.io.sockets;
+
+    const roomName = client.gameID;
+    await client.join(roomName);
+    const { gameID, userID,name } = client;
+    const initialData = await this.gamesService.addPlayer(
+      {gameID,
+      userID,
+      name}
+    );
+    const pubilcData = await this.gamesService.getGamePublicData(gameID);
 
     this.logger.debug(`socket connected with userID: ${client.userID}, name: ${client.name}, gameID:${client.gameID}`)
     this.logger.debug(`There Are ${sockets.size} clients connected`);
+
+    this.io.to(client.id).emit('initial_data',initialData);
+    this.io.to(roomName).emit('game_updated', pubilcData);
+    if (initialData.players.length === 4) this.io.to(roomName).emit('gameState_updated', 'ON_PROGRESS');
   }
 
   handleDisconnect(client: SocketWithAuth) {
     const sockets = this.io.sockets;
 
+    const roomName = client.gameID;
+    const { gameID, userID, } = client;
+    const players = this.gamesService.removePlayer({gameID,userID});
     this.logger.debug(`socket disconnected with userID: ${client.userID}, name: ${client.name}, gameID:${client.gameID}`)
     this.logger.debug(`There Are ${sockets.size} clients connected`);
+    this.io.to(roomName).emit('gameState_updated', 'WFPTJ');
   }
 
   @SubscribeMessage('test')
