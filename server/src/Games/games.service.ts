@@ -83,11 +83,10 @@ export class GamesService {
 
   async playCard(playCard:PlayCardFields) {
     const {card,gameID,userID} = playCard;
-    const deck = await this.gamesRepository.addCardToTrick(card,gameID);
-    if(deck.length === 4){
-      const game = await this.gamesRepository.getGame(gameID);
+    const trick = await this.gamesRepository.addCardToTrick(card,gameID);
+    if(trick.length === 4){
+      await this.gamesRepository.addTrickToPlayedHands(trick,gameID);
       await this.gamesRepository.cleanTrick(gameID);
-
     }
   }
 }
