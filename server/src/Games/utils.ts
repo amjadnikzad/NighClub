@@ -116,6 +116,19 @@ const getHeartsDeckScore = (deck:Deck): number => {
   return deckScore;
 }
 
+function sumArrays(array1: number[], array2: number[]): number[] {
+  if (array1.length !== array2.length) {
+    throw new Error("Arrays must have the same length");
+  }
+
+  const result: number[] = [];
+  
+  for (let i = 0; i < array1.length; i++) {
+    result.push(array1[i] + array2[i]);
+  }
+
+  return result;
+}
 //game validation logic
 const doesItHaveTheCard = (cards:Card[][],playerIndex:OrderIndexType,requestedCard:Card): boolean => {
   const playerCards =  cards[playerIndex-1];
