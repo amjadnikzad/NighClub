@@ -95,7 +95,6 @@ type ScoreTuple = [OrderIndexType, number];
 
 interface Round {
   scores: ScoreTuple[];
-  turnNumber: number;
   playersCards: Array<Card>[];
   handsPlayed: Array<Card>[];
   playOrder: OrderIndexType[];
@@ -117,7 +116,6 @@ export interface Game {
 type PlayerSpecificRoundData = {
   playerHand: Deck;
   scores: ScoreTuple[];
-  turnNumber: number;
   handsPlayed: Array<Card>[];
   playOrder: OrderIndexType[];
   trick:Deck;
@@ -133,7 +131,6 @@ export type PlayerSpecificData = {
 
 type GamePublicRoundData = {
   scores: ScoreTuple[];
-  turnNumber: number;
   handsPlayed: Array<Card>[];
   playOrder: OrderIndexType[];
   trick:Deck;
