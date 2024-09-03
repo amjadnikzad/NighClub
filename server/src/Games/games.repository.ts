@@ -124,6 +124,7 @@ export class GamesRepository {
       throw e;
     }
   }
+  
   async setGameState({gameID,state}:SetGameStateData): Promise<Game['state']> {
     this.logger.log(`Attempting to set game state with the ID of: ${gameID}`);
     const JSONString = `'"${state}"'`;
@@ -145,6 +146,7 @@ export class GamesRepository {
       throw e;
     }
   }
+
   async getPlayerSpecificData({gameID,userID}:GetInitialGameData) {
     this.logger.log(`Attempting to get Initial Data of Game with the ID of: ${gameID}`);
     

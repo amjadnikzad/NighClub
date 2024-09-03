@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { createGameID, createUserID } from 'src/IDs';
-import { CreateGameFields, JoinGameFields } from './types';
+import { AddPlayerFields, CreateGameFields, JoinGameFields, RemovePlayerFields } from './types';
 import { GamesRepository } from './games.repository';
 
 @Injectable()
@@ -60,5 +60,24 @@ export class GamesService {
   async getGameState(gameID:string) {
     const gameState = await this.gamesRepository.getGameState(gameID);
     return gameState;
+  }
+
+  async getGamePublicData(gameID:string) {
+    const gamePublicData = await this.gamesRepository.getGamePubiclDate(gameID);
+    return gamePublicData;
+  }
+
+  async addPlayer(addPlayer:AddPlayerFields) {
+    const {gameID,userID} = addPlayer;
+    const players = await this.gamesRepository.addPlayer(addPlayer);
+    if(players.length === 4) await this.gamesRepository.setGameState({gameID,state:"ON_PROGRESS"});
+    return await this.gamesRepository.getPlayerSpecificData({gameID,userID});
+  }
+  
+  async removePlayer(removePlayer:RemovePlayerFields){
+    const game = await this.gamesRepository.removePlayer(removePlayer);
+    const gameID = removePlayer.gameID;
+    await this.gamesRepository.setGameState({gameID,state:'WFPTJ'});
+    return  game.players;
   }
 }

@@ -28,6 +28,16 @@ export type JoinGameFields = {
   name: string;
 };
 
+export type AddPlayerFields = {
+  userID: string;
+  gameID: string;
+  name: string;
+};
+
+export type RemovePlayerFields = {
+  userID: string;
+  gameID: string;
+};
 //Repository Types
 export type CreateGameData = {
   userID: string;
@@ -41,10 +51,24 @@ export type AddPlayerData = {
   name: string;
 };
 
+export type GetInitialGameData = {
+  gameID: string;
+  userID: string;
+};
+
+export type RemovePlayerData = {
+  userID: string;
+  gameID: string;
+};
+
+export type SetGameStateData = {
+  gameID: string;
+  state: Game['state'];
+};
 //Game Types
 export type OrderIndexType = 1 | 2 | 3 | 4;
 type Player = {
-  PlayerID: string;
+  playerID: string;
   name: string;
   orderIndex: OrderIndexType;
 };
@@ -87,6 +111,43 @@ export interface Game {
   leavedPlayers: Player[];
 }
 
+type PlayerSpecificRoundData = {
+  playerHand: Deck;
+  scores: ScoreTuple[];
+  turnNumber: number;
+  handsPlayed: Array<Card>[];
+  playOrder: OrderIndexType[];
+  currentHand: {
+    play: Array<Card>;
+    whoIsTurn: number;
+  };
+};
+export type PlayerSpecificData = {
+  state: GameSates;
+  players: Player[];
+  roundsPlayed: Array<number[]>;
+  scores: number[];
+  currentRound: PlayerSpecificRoundData;
+  
+};
+
+type GamePublicRoundData = {
+  scores: ScoreTuple[];
+  turnNumber: number;
+  handsPlayed: Array<Card>[];
+  playOrder: OrderIndexType[];
+  currentHand: {
+    play: Array<Card>;
+    whoIsTurn: number;
+  };
+};
+export type GamePublicData = {
+  state: GameSates;
+  players: Player[];
+  roundsPlayed: Array<number[]>;
+  scores: number[];
+  currentRound:GamePublicRoundData;
+};
 export interface HeartsRound extends Round {
   gameStage: 'SWAP' | 'PLAY';
   swapStack: Card[][];
