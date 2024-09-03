@@ -91,10 +91,10 @@ type GameSates = 'WFPTJ' | 'ON_PROGRESS' | 'fINISHED' | 'STALE';
 
 export type Deck = Card[];
 
-type ScoreTuple = [OrderIndexType, number];
+type ScoreType = number[];
 
 interface Round {
-  scores: ScoreTuple[];
+  scores: ScoreType[];
   playersCards: Array<Card>[];
   handsPlayed: Array<Card>[];
   playOrder: OrderIndexType[];
@@ -113,35 +113,39 @@ export interface Game {
   leavedPlayers: Player[];
 }
 
-type PlayerSpecificRoundData = {
-  playerHand: Deck;
-  scores: ScoreTuple[];
-  handsPlayed: Array<Card>[];
-  playOrder: OrderIndexType[];
-  trick:Deck;
-};
-export type PlayerSpecificData = {
-  state: GameSates;
-  players: Player[];
-  roundsPlayed: Array<number[]>;
-  scores: number[];
-  currentRound: PlayerSpecificRoundData;
+type PlayerSpecificRoundData = Omit<Round,'playersCards'> & {playerHand:Round['playersCards'][number]};
+// {
+//   playerHand: Deck;
+//   scores: ScoreTuple[];
+//   handsPlayed: Array<Card>[];
+//   playOrder: OrderIndexType[];
+//   trick:Deck;
+// };
+export type PlayerSpecificData = Pick<Game,'state' | 'players'|'roundsPlayed'|'scores'> & {currentRound:PlayerSpecificRoundData} 
+//  {
+//   state: GameSates;
+//   players: Player[];
+//   roundsPlayed: Array<number[]>;
+//   scores: number[];
+//   currentRound: PlayerSpecificRoundData;
   
-};
+// };
 
-type GamePublicRoundData = {
-  scores: ScoreTuple[];
-  handsPlayed: Array<Card>[];
-  playOrder: OrderIndexType[];
-  trick:Deck;
-};
-export type GamePublicData = {
-  state: GameSates;
-  players: Player[];
-  roundsPlayed: Array<number[]>;
-  scores: number[];
-  currentRound:GamePublicRoundData;
-};
+type GamePublicRoundData = Omit<PlayerSpecificRoundData,'playerHand'>
+//  {
+//   scores: ScoreTuple[];
+//   handsPlayed: Array<Card>[];
+//   playOrder: OrderIndexType[];
+//   trick:Deck;
+// };
+export type GamePublicData = Omit<PlayerSpecificData,'currentRound'> & {currentRound:GamePublicRoundData}
+//  {
+//   state: GameSates;
+//   players: Player[];
+//   roundsPlayed: Array<number[]>;
+//   scores: number[];
+//   currentRound:GamePublicRoundData;
+// };
 export interface HeartsRound extends Round {
   gameStage: 'SWAP' | 'PLAY';
   swapStack: Card[][];
