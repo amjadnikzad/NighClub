@@ -38,6 +38,12 @@ export type RemovePlayerFields = {
   userID: string;
   gameID: string;
 };
+
+export type PlayCardFields = {
+  userID: string;
+  gameID: string;
+  card: Card;
+};
 //Repository Types
 export type CreateGameData = {
   userID: string;
@@ -93,10 +99,7 @@ interface Round {
   playersCards: Array<Card>[];
   handsPlayed: Array<Card>[];
   playOrder: OrderIndexType[];
-  currentHand: {
-    play: Array<Card>;
-    whoIsTurn: number;
-  };
+  trick:Deck;
 }
 export interface Game {
   gameID: string;
@@ -117,10 +120,7 @@ type PlayerSpecificRoundData = {
   turnNumber: number;
   handsPlayed: Array<Card>[];
   playOrder: OrderIndexType[];
-  currentHand: {
-    play: Array<Card>;
-    whoIsTurn: number;
-  };
+  trick:Deck;
 };
 export type PlayerSpecificData = {
   state: GameSates;
@@ -136,10 +136,7 @@ type GamePublicRoundData = {
   turnNumber: number;
   handsPlayed: Array<Card>[];
   playOrder: OrderIndexType[];
-  currentHand: {
-    play: Array<Card>;
-    whoIsTurn: number;
-  };
+  trick:Deck;
 };
 export type GamePublicData = {
   state: GameSates;

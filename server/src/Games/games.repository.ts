@@ -6,7 +6,19 @@ import {
 } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import { IORedisKey } from 'src/redis.module';
-import { AddPlayerData, CreateGameData, Deck, Game, GamePublicData, GetInitialGameData, HeartsGame, PlayerSpecificData, RemovePlayerData, SetGameStateData } from './types';
+import {
+  AddPlayerData,
+  Card,
+  CreateGameData,
+  Deck,
+  Game,
+  GamePublicData,
+  GetInitialGameData,
+  HeartsGame,
+  PlayerSpecificData,
+  RemovePlayerData,
+  SetGameStateData,
+} from './types';
 import { createDeck, distributeDeck, playeOrederResolver } from './utils';
 
 @Injectable()
@@ -42,10 +54,7 @@ export class GamesRepository {
         handsPlayed: [],
         playersCards: [...[...hands]],
         playOrder: [1, 2, 3, 4],
-        currentHand: {
-          play: [],
-          whoIsTurn: 0,
-        },
+        trick:[],
         gameStage: 'PLAY',
         swapStack: [],
       },
@@ -124,8 +133,11 @@ export class GamesRepository {
       throw e;
     }
   }
-  
-  async setGameState({gameID,state}:SetGameStateData): Promise<Game['state']> {
+
+  async setGameState({
+    gameID,
+    state,
+  }: SetGameStateData): Promise<Game['state']> {
     this.logger.log(`Attempting to set game state with the ID of: ${gameID}`);
     const JSONString = `'"${state}"'`;
     const key = `games:${gameID}`;
@@ -134,9 +146,8 @@ export class GamesRepository {
         'JSON.SET',
         key,
         '$.state',
-        JSON.stringify(state)
+        JSON.stringify(state),
       );
-      
 
       return currentState;
     } catch (e) {
@@ -147,27 +158,71 @@ export class GamesRepository {
     }
   }
 
-  async getPlayerSpecificData({gameID,userID}:GetInitialGameData) {
-    this.logger.log(`Attempting to get Initial Data of Game with the ID of: ${gameID}`);
-    
+  async getPlayerSpecificData({ gameID, userID }: GetInitialGameData) {
+    this.logger.log(
+      `Attempting to get Initial Data of Game with the ID of: ${gameID}`,
+    );
+
     const game = await this.getGame(gameID);
     const currentRound = game.currentRound;
-    const {currentHand,handsPlayed,playOrder,scores,turnNumber} = currentRound;
-    const player = game.players.find(player=>player.playerID === userID);
+    const { trick, handsPlayed, playOrder, scores, turnNumber } =
+      currentRound;
+    const player = game.players.find((player) => player.playerID === userID);
     const orderIndex = player.orderIndex;
-    const playerHand = game.currentRound.playersCards[orderIndex-1];
-    const initialGameData:PlayerSpecificData = {scores:game.scores,players:game.players,roundsPlayed:game.roundsPlayed,state:game.state,currentRound:{currentHand,handsPlayed,playerHand,scores,turnNumber,playOrder}};
+    const playerHand = game.currentRound.playersCards[orderIndex - 1];
+    const initialGameData: PlayerSpecificData = {
+      scores: game.scores,
+      players: game.players,
+      roundsPlayed: game.roundsPlayed,
+      state: game.state,
+      currentRound: {
+        trick,
+        handsPlayed,
+        playerHand,
+        scores,
+        turnNumber,
+        playOrder,
+      },
+    };
     return initialGameData;
   }
-  async getGamePubiclDate(gameID:string) {
+  async getGamePubiclDate(gameID: string) {
     const game = await this.getGame(gameID);
-    const {state,scores:gameScores,players,roundsPlayed,currentRound} = game;
-    const {currentHand,handsPlayed,playOrder,scores:roundScores,turnNumber} = currentRound;
-    const gamePublicData = <GamePublicData> {players,scores:gameScores,state,roundsPlayed,currentRound:{currentHand,handsPlayed,playOrder,scores:roundScores,turnNumber}};
+    const {
+      state,
+      scores: gameScores,
+      players,
+      roundsPlayed,
+      currentRound,
+    } = game;
+    const {
+      trick,
+      handsPlayed,
+      playOrder,
+      scores: roundScores,
+      turnNumber,
+    } = currentRound;
+    const gamePublicData = <GamePublicData>{
+      players,
+      scores: gameScores,
+      state,
+      roundsPlayed,
+      currentRound: {
+        trick,
+        handsPlayed,
+        playOrder,
+        scores: roundScores,
+        turnNumber,
+      },
+    };
     return gamePublicData;
   }
 
-  async addPlayer({ gameID, name, userID }: AddPlayerData): Promise<Game['players']> {
+  async addPlayer({
+    gameID,
+    name,
+    userID,
+  }: AddPlayerData): Promise<Game['players']> {
     this.logger.log(
       `Attempting to Add Player with UserID/name: ${userID}/${name} to gameID: ${gameID}`,
     );
@@ -181,7 +236,7 @@ export class GamesRepository {
         'JSON.ARRAPPEND',
         key,
         playersPath,
-        JSON.stringify({ playerID:userID, name,orderIndex}),
+        JSON.stringify({ playerID: userID, name, orderIndex }),
       );
 
       return (await this.getGame(gameID)).players;
@@ -201,7 +256,9 @@ export class GamesRepository {
     const playersPath = '$.players';
     const game = await this.getGame(gameID);
     const players = game.players;
-    const playerindex = players.findIndex(player=> player.playerID === userID);
+    const playerindex = players.findIndex(
+      (player) => player.playerID === userID,
+    );
     try {
       await this.redisClient.send_command(
         'JSON.ARRPOP',
@@ -210,12 +267,56 @@ export class GamesRepository {
         playerindex,
       );
 
-       const updatedGame = await this.getGame(gameID);
-       return updatedGame;
+      const updatedGame = await this.getGame(gameID);
+      return updatedGame;
     } catch (e) {
       this.logger.error(
         `Failed to remove player with playerID/name:${userID}/${name} to game: ${gameID}`,
       );
+      throw e;
+    }
+  }
+
+  async addCardToTrick(card: Card, gameID: string) {
+    this.logger.log(
+      `Attempting to add card: ${card.suit},${card.rank} to game: ${gameID}`,
+    );
+    const key = `games:${gameID}`;
+    const trickPath = '$.currentRound.currentHand.trick';
+
+    try {
+      await this.redisClient.send_command(
+        'JSON.ARRPOP',
+        key,
+        trickPath,
+        JSON.stringify(card),
+      );
+      const updatedDeck = await this.redisClient.send_command(
+        'JSON.GET',
+        key,
+        trickPath
+      );
+      return updatedDeck as Deck;
+    } catch (e) {
+      this.logger.error(`Failed to Add card with card to game: ${gameID}`);
+      throw e;
+    }
+  }
+
+  async cleanTrick(gameID: string) {
+    this.logger.log(`Attempting to clean deck of game: ${gameID}`);
+    const key = `games:${gameID}`;
+    const trickPath = '$.currentRound.currentHand.trick';
+
+    try {
+      await this.redisClient.send_command(
+        'JSON.SET',
+        key,
+        trickPath,
+        '[]',
+      );
+    } catch (e) {
+      this.logger.error(`Attempting to clean deck of game: ${gameID} failed`);
       throw e;
     }
   }

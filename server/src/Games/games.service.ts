@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { createGameID, createUserID } from 'src/IDs';
-import { AddPlayerFields, CreateGameFields, JoinGameFields, RemovePlayerFields } from './types';
+import { AddPlayerFields, CreateGameFields, JoinGameFields, PlayCardFields, RemovePlayerFields } from './types';
 import { GamesRepository } from './games.repository';
 
 @Injectable()
@@ -79,5 +79,15 @@ export class GamesService {
     const gameID = removePlayer.gameID;
     await this.gamesRepository.setGameState({gameID,state:'WFPTJ'});
     return  game.players;
+  }
+
+  async playCard(playCard:PlayCardFields) {
+    const {card,gameID,userID} = playCard;
+    const deck = await this.gamesRepository.addCardToTrick(card,gameID);
+    if(deck.length === 4){
+      const game = await this.gamesRepository.getGame(gameID);
+      await this.gamesRepository.cleanTrick(gameID);
+
+    }
   }
 }
