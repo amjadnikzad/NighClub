@@ -1,4 +1,4 @@
-import { Deck, Card, Rank, Suit, OrderIndexType } from './types';
+import { Deck, Card, Rank, Suit, OrderIndexType,Game } from './types';
 
 export const createDeck = (): Deck => {
   const deck: Deck = [];
@@ -122,6 +122,24 @@ const doesItHaveTheCard = (cards:Card[][],playerIndex:OrderIndexType,requestedCa
   return playerCards.some(card => card.rank === requestedCard.rank && card.suit === requestedCard.suit);
 };
 
-const isItPlayersTurn = (playerOrderIndex:OrderIndexType,whoIsTurn:number):boolean => {
+// const isItPlayersTurn = (playerOrderIndex:OrderIndexType,whoIsTurn:number):boolean => {
 
-}
+// }
+
+//repository utils
+type Players = Game['players'];
+// should be rectifie !!!!!!!!!!!!
+export const playeOrederResolver = (players: Players): OrderIndexType => {
+  const OccupiedInexes = players.map((player) => {
+    return player.orderIndex;
+  });
+  console.log("this is occ indexes", OccupiedInexes);
+  const indexes = [1, 2, 3, 4];
+  const availableIndexes = indexes.filter(
+    (v) => !OccupiedInexes.some((i) => i === v)
+  );
+  console.log("this is ava indexes", availableIndexes);
+
+  if (!availableIndexes[0]) return 1;
+  return availableIndexes[0] as OrderIndexType;
+};
