@@ -50,7 +50,6 @@ export class GamesRepository {
           [3, 0],
           [4, 0],
         ],
-        turnNumber: 1,
         handsPlayed: [],
         playersCards: [...[...hands]],
         playOrder: [1, 2, 3, 4],
@@ -162,11 +161,9 @@ export class GamesRepository {
     this.logger.log(
       `Attempting to get Initial Data of Game with the ID of: ${gameID}`,
     );
-
     const game = await this.getGame(gameID);
     const currentRound = game.currentRound;
-    const { trick, handsPlayed, playOrder, scores, turnNumber } =
-      currentRound;
+    const { trick, handsPlayed, playOrder, scores } = currentRound;
     const player = game.players.find((player) => player.playerID === userID);
     const orderIndex = player.orderIndex;
     const playerHand = game.currentRound.playersCards[orderIndex - 1];
@@ -180,7 +177,6 @@ export class GamesRepository {
         handsPlayed,
         playerHand,
         scores,
-        turnNumber,
         playOrder,
       },
     };
@@ -200,7 +196,6 @@ export class GamesRepository {
       handsPlayed,
       playOrder,
       scores: roundScores,
-      turnNumber,
     } = currentRound;
     const gamePublicData = <GamePublicData>{
       players,
@@ -212,7 +207,6 @@ export class GamesRepository {
         handsPlayed,
         playOrder,
         scores: roundScores,
-        turnNumber,
       },
     };
     return gamePublicData;
@@ -282,11 +276,11 @@ export class GamesRepository {
       `Attempting to add card: ${card.suit},${card.rank} to game: ${gameID}`,
     );
     const key = `games:${gameID}`;
-    const trickPath = '$.currentRound.currentHand.trick';
+    const trickPath = '$.currentRound.trick';
 
     try {
       await this.redisClient.send_command(
-        'JSON.ARRPOP',
+        'JSON.ARRAPPEND',
         key,
         trickPath,
         JSON.stringify(card),
@@ -306,7 +300,7 @@ export class GamesRepository {
   async cleanTrick(gameID: string) {
     this.logger.log(`Attempting to clean deck of game: ${gameID}`);
     const key = `games:${gameID}`;
-    const trickPath = '$.currentRound.currentHand.trick';
+    const trickPath = '$.currentRound.trick';
 
     try {
       await this.redisClient.send_command(
@@ -314,6 +308,23 @@ export class GamesRepository {
         key,
         trickPath,
         '[]',
+      );
+    } catch (e) {
+      this.logger.error(`Attempting to clean deck of game: ${gameID} failed`);
+      throw e;
+    }
+  }
+  async addTrickToPlayedHands (trick:Deck,gameID:string) {
+
+    const key = `games:${gameID}`;
+    const playdHandsPath = '$.currentRound.handsPlayed';
+
+    try {
+      await this.redisClient.send_command(
+        'JSON.ARRAPPEND',
+        key,
+        playdHandsPath,
+        JSON.stringify(trick),
       );
     } catch (e) {
       this.logger.error(`Attempting to clean deck of game: ${gameID} failed`);
