@@ -98,14 +98,14 @@ export class GamesRepository {
     const key = `games:${gameID}`;
 
     try {
-      const currentPoll = await this.redisClient.send_command(
+      const currentGame = await this.redisClient.send_command(
         'JSON.GET',
         key,
         '.',
       );
-      this.logger.verbose(currentPoll);
+      this.logger.verbose(currentGame);
 
-      return JSON.parse(currentPoll);
+      return JSON.parse(currentGame);
     } catch (e) {
       this.logger.error(`Failled to retrive a game with this ${gameID} id`);
       throw e;
@@ -161,27 +161,14 @@ export class GamesRepository {
     this.logger.log(
       `Attempting to get Initial Data of Game with the ID of: ${gameID}`,
     );
-    const game = await this.getGame(gameID);
-    const currentRound = game.currentRound;
-    const { trick, handsPlayed, playOrder, scores } = currentRound;
-    const player = game.players.find((player) => player.playerID === userID);
-    const orderIndex = player.orderIndex;
-    const playerHand = game.currentRound.playersCards[orderIndex - 1];
-    const initialGameData: PlayerSpecificData = {
-      scores: game.scores,
-      players: game.players,
-      roundsPlayed: game.roundsPlayed,
-      state: game.state,
-      currentRound: {
-        trick,
-        handsPlayed,
-        playerHand,
-        scores,
-        playOrder,
-      },
-    };
-    return initialGameData;
+    const orderIndex = await this.getPlayerPlayOrder(gameID,userID);
+    const playerHand = await this.getPlayerCards(gameID,+orderIndex);
+    const PlayerSpecificData: PlayerSpecificData = {
+      playerHand,
+      }
+    return PlayerSpecificData;
   }
+
   async getGamePubiclDate(gameID: string) {
     const game = await this.getGame(gameID);
     const {
@@ -197,6 +184,7 @@ export class GamesRepository {
       playOrder,
       scores: roundScores,
     } = currentRound;
+    const sanitizedHandsPlayed = handsPlayed.map((hand,i,hands)=>{if(i + 1 < hands.length){return[]} else return hand});
     const gamePublicData = <GamePublicData>{
       players,
       scores: gameScores,
@@ -204,7 +192,7 @@ export class GamesRepository {
       roundsPlayed,
       currentRound: {
         trick,
-        handsPlayed,
+        handsPlayed:sanitizedHandsPlayed,
         playOrder,
         scores: roundScores,
       },
@@ -271,12 +259,75 @@ export class GamesRepository {
     }
   }
 
+  async getPlayerPlayOrder(gameID:string,userID:string){
+    const key = `games:${gameID}`;
+    const playersPath = '.players';
+
+    try {
+      const playersJSON = await this.redisClient.send_command(
+        'JSON.GET',
+        key,
+        playersPath,
+      );
+      const players = await JSON.parse(playersJSON) as Game['players'];
+     this.logger.log(playersJSON);
+      const playOrderIndex = players.find(player=>player.playerID === userID).orderIndex;
+      return playOrderIndex;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getPlayerCards(gameID:string,gameOrderIndex:number){
+    this.logger.log(
+      `Attempting to remove card of player with order index of ${gameOrderIndex} from gameID: ${gameID}`,
+    );
+    const key = `games:${gameID}`;
+    const playOrderIndex = gameOrderIndex;
+    const playerIndex = playOrderIndex-1;
+    const playersCardsPath = `.currentRound.playersCards[${playerIndex}]`;
+    const playerCards = await this.redisClient.send_command(
+      'JSON.GET',
+      key,
+      playersCardsPath,
+    );
+    this.logger.log(
+      JSON.parse(playerCards)
+    );
+    return JSON.parse(playerCards) as Deck;
+  }
+  async removePlayerCard(card:Card,userID:string,gameID:string):Promise<void>{
+
+    this.logger.log(
+      `Attempting to remove card: ${card.rank}:${card.suit} of UserID: ${userID} from gameID: ${gameID}`,
+    );
+    const key = `games:${gameID}`;
+    const playOrderIndex = await this.getPlayerPlayOrder(gameID,userID);
+    const playerIndex = playOrderIndex-1;
+    const playerCards = await this.getPlayerCards(gameID,playOrderIndex);
+    const cardToBeDeletedIndex = playerCards.findIndex((cardTBD)=>{return cardTBD.rank === card.rank && cardTBD.suit === card.suit});
+    const playersPath = `.currentRound.playersCards[${playerIndex}]`;
+    try {
+      await this.redisClient.send_command(
+        'JSON.ARRPOP',
+        key,
+        playersPath,
+        cardToBeDeletedIndex,
+      );
+    } catch (e) {
+      this.logger.error(
+        `Failed to remove player card with playerID:${userID}} to game: ${gameID}`,
+      );
+      throw e;
+    }
+
+  }
   async addCardToTrick(card: Card, gameID: string) {
     this.logger.log(
       `Attempting to add card: ${card.suit},${card.rank} to game: ${gameID}`,
     );
     const key = `games:${gameID}`;
-    const trickPath = '$.currentRound.trick';
+    const trickPath = '.currentRound.trick';
 
     try {
       await this.redisClient.send_command(
@@ -285,12 +336,12 @@ export class GamesRepository {
         trickPath,
         JSON.stringify(card),
       );
-      const updatedDeck = await this.redisClient.send_command(
+      const updatedTrick = await this.redisClient.send_command(
         'JSON.GET',
         key,
-        trickPath
+       trickPath
       );
-      return updatedDeck as Deck;
+      return JSON.parse(updatedTrick) as Deck;
     } catch (e) {
       this.logger.error(`Failed to Add card with card to game: ${gameID}`);
       throw e;
@@ -314,21 +365,98 @@ export class GamesRepository {
       throw e;
     }
   }
+
+  async cleanHandsPlayed(gameID: string) {
+    this.logger.log(`Attempting to clean handsPlayed of game: ${gameID}`);
+    const key = `games:${gameID}`;
+    const handsPlayedPath = '$.currentRound.handsPlayed';
+
+    try {
+      await this.redisClient.send_command(
+        'JSON.SET',
+        key,
+        handsPlayedPath,
+        '[]',
+      );
+    } catch (e) {
+      this.logger.error(`Attempting to clean handsPlayed of game: ${gameID} failed`);
+      throw e;
+    }
+  }
+
+  async setRoundScores (gameID,scores:number[]){
+    this.logger.log(`Attempting to set round's score of game: ${gameID}`);
+    const key = `games:${gameID}`;
+    const roundScorePath = '$.currentRound.scores';
+
+    try {
+      await this.redisClient.send_command(
+        'JSON.SET',
+        key,
+        roundScorePath,
+        JSON.stringify(scores),
+      );
+      // const roundsScores = await this.redisClient.send_command(
+      //   'JSON.GET',
+      //   key,
+      //   roundScorePath,
+      // );
+      // return roundsScores;
+    } catch (e) {
+      this.logger.error(`Attempting to set round's scores of game: ${gameID} failed`);
+      throw e;
+    }
+  }
+
   async addTrickToPlayedHands (trick:Deck,gameID:string) {
 
     const key = `games:${gameID}`;
-    const playdHandsPath = '$.currentRound.handsPlayed';
+    const handsPlayedPath = '$.currentRound.handsPlayed';
 
     try {
       await this.redisClient.send_command(
         'JSON.ARRAPPEND',
         key,
-        playdHandsPath,
+        handsPlayedPath,
         JSON.stringify(trick),
       );
+       const handsPlayed  = await this.redisClient.send_command(
+        'JSON.GET',
+        key,
+        handsPlayedPath,
+      );
+      return JSON.parse(handsPlayed) as Game['currentRound']['handsPlayed']; 
     } catch (e) {
       this.logger.error(`Attempting to clean deck of game: ${gameID} failed`);
       throw e;
     }
   }
+
+  async addRoundsScoreToPlayedRounds(gameID:string){
+
+    const key = `games:${gameID}`;
+    const roundsPlayedPath = '$.roundsPlayed';
+    const roundsScorePath = '$.currentRound.scores';
+    try {
+      const roundsScore = await this.redisClient.send_command(
+        'JSON.GET',
+        key,
+        roundsScorePath,
+      );
+      await this.redisClient.send_command(
+        'JSON.ARRAPPEND',
+        key,
+        roundsPlayedPath,
+        roundsScore,
+      );
+      const roundsPlayed = await this.redisClient.send_command(
+        'JSON.GET',
+        key,
+        roundsPlayedPath,
+      );
+      return JSON.parse(roundsPlayed) as Game['roundsPlayed'];
+  }catch (e) {
+    this.logger.error(`Attempting to clean deck of game: ${gameID} failed`);
+    throw e;
+  }}
 }
