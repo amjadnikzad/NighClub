@@ -108,12 +108,12 @@ export interface Game {
   state: GameSates;
   scores: number[];
   gameMode: string;
-  roundsPlayed: Array<number[]>;
+  roundsPlayed: ScoreType[];
   currentRound: Round;
   leavedPlayers: Player[];
 }
 
-type PlayerSpecificRoundData = Omit<Round,'playersCards'> & {playerHand:Round['playersCards'][number]};
+// type PlayerSpecificRoundData = Omit<Round,'playersCards'> & {playerHand:Round['playersCards'][number]};
 // {
 //   playerHand: Deck;
 //   scores: ScoreTuple[];
@@ -121,7 +121,7 @@ type PlayerSpecificRoundData = Omit<Round,'playersCards'> & {playerHand:Round['p
 //   playOrder: OrderIndexType[];
 //   trick:Deck;
 // };
-export type PlayerSpecificData = Pick<Game,'state' | 'players'|'roundsPlayed'|'scores'> & {currentRound:PlayerSpecificRoundData} 
+export type PlayerSpecificData = {playerHand:Round['playersCards'][number]};
 //  {
 //   state: GameSates;
 //   players: Player[];
@@ -131,14 +131,14 @@ export type PlayerSpecificData = Pick<Game,'state' | 'players'|'roundsPlayed'|'s
   
 // };
 
-type GamePublicRoundData = Omit<PlayerSpecificRoundData,'playerHand'>
+type GamePublicRoundData = Omit<Round,'playersCards'>;
 //  {
 //   scores: ScoreTuple[];
 //   handsPlayed: Array<Card>[];
 //   playOrder: OrderIndexType[];
 //   trick:Deck;
 // };
-export type GamePublicData = Omit<PlayerSpecificData,'currentRound'> & {currentRound:GamePublicRoundData}
+export type GamePublicData = Pick<Game,'state' | 'players'|'roundsPlayed'|'scores'> & {currentRound:GamePublicRoundData}
 //  {
 //   state: GameSates;
 //   players: Player[];
