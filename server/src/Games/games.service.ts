@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { createGameID, createUserID } from 'src/IDs';
 import { AddPlayerFields, CreateGameFields, JoinGameFields, PlayCardFields, RemovePlayerFields } from './types';
 import { GamesRepository } from './games.repository';
+import { caculateScoreFromScoresArray, CalculateRoundsScoreBaseOnHandsPlayed, isItOverScoreLimit } from './utils';
 
 @Injectable()
 export class GamesService {
@@ -83,9 +84,36 @@ export class GamesService {
 
   async playCard(playCard:PlayCardFields) {
     const {card,gameID,userID} = playCard;
+
+     //*****validation logic must be added*****
+      //*****validation logic must be added*****
+      //*****validation logic must be added*****
+
+    
     const trick = await this.gamesRepository.addCardToTrick(card,gameID);
+    this.gamesRepository.removePlayerCard(card,userID,gameID);
+    this.logger.log(`number of cards in trick is ${trick}`);
+    console.log(trick);
     if(trick.length === 4){
-      await this.gamesRepository.addTrickToPlayedHands(trick,gameID);
+      const handsPlayed = await this.gamesRepository.addTrickToPlayedHands(trick,gameID);
+      //update current round scores here
+      const roundsScores = CalculateRoundsScoreBaseOnHandsPlayed(handsPlayed);
+      this.gamesRepository.setRoundScores(gameID,roundsScores);
+      if(handsPlayed.length === 13){
+        // should reset curent round values and update game
+        const playedRounds = await this.gamesRepository.addRoundsScoreToPlayedRounds(gameID);
+        if(playedRounds.length >11){
+          const gameScore = caculateScoreFromScoresArray(playedRounds);
+          //checks if games is over
+          if(isItOverScoreLimit(gameScore)){
+            this.gamesRepository.setGameState({gameID,state:'fINISHED'});
+          }
+        }
+        this.gamesRepository.cleanHandsPlayed(gameID);
+      };
+      //set new playe order
+
+
       await this.gamesRepository.cleanTrick(gameID);
     }
   }
