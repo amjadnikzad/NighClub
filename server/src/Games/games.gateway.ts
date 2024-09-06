@@ -1,5 +1,7 @@
 import { Logger, UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
 import {
+  ConnectedSocket,
+  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
   OnGatewayInit,
@@ -9,7 +11,7 @@ import {
 } from '@nestjs/websockets';
 import { GamesService } from './games.service';
 import { Namespace, Socket } from 'socket.io';
-import { SocketWithAuth } from './types';
+import { Card, SocketWithAuth } from './types';
 import { WsBadRequestException } from 'src/Exception/ws-exceptions';
 import { WsCathAllFilter } from 'src/Exception/ws-catch-all-filter';
 
@@ -47,7 +49,7 @@ export class GamesGateway
 
     this.io.to(client.id).emit('initial_data',initialData);
     this.io.to(roomName).emit('game_updated', pubilcData);
-    if (initialData.players.length === 4) this.io.to(roomName).emit('gameState_updated', 'ON_PROGRESS');
+    if (pubilcData.players.length === 4) this.io.to(roomName).emit('gameState_updated', 'ON_PROGRESS');
   }
 
   handleDisconnect(client: SocketWithAuth) {
@@ -61,8 +63,17 @@ export class GamesGateway
     this.io.to(roomName).emit('gameState_updated', 'WFPTJ');
   }
 
-  @SubscribeMessage('test')
-  async test() {
-    throw new WsBadRequestException('Your Request Is Unautorized');
+  @SubscribeMessage('play')
+  async play(
+    @MessageBody() card: Card,
+    @ConnectedSocket() client: SocketWithAuth,
+  ) {
+    const sockets = this.io.sockets;
+
+    const roomName = client.gameID;
+    const { gameID, userID } = client;
+
+    this.gamesService.playCard({gameID,userID,card});
+    this.io.to(roomName).emit('card_played', card);
   }
 }
