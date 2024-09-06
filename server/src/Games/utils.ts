@@ -129,6 +129,34 @@ function sumArrays(array1: number[], array2: number[]): number[] {
 
   return result;
 }
+
+export function isItOverScoreLimit(scores:number[],scoreLimit:number = 320):boolean {
+  return scores.some(score=>score >= scoreLimit);
+};
+
+export function caculateScoreFromScoresArray(roundsPlayed:number[][]):number[] {
+  return roundsPlayed.reduce((acc,roundsScore)=>{
+    const summedAcc = sumArrays(acc,roundsScore);
+    return acc = summedAcc;
+  },[0,0,0,0]);
+};
+function calculateHeartsHand(deck:Deck):number{
+  return deck.reduce((acc,card)=>{
+    if(card.suit === 'Hearts') {acc++} else if(card.suit === 'Spades' && card.rank === 'Queen')
+      { acc += 17;}
+    return acc;
+  },0)
+}
+export function CalculateRoundsScoreBaseOnHandsPlayed(handsPlayed:Card[][]):number[] {
+  const handsScore = handsPlayed.map((hand)=> {
+    const scoreArray = [0,0,0,0];
+    const winnerIndex = resolveDeck(hand);
+    scoreArray[winnerIndex-1] = calculateHeartsHand(hand);
+    return scoreArray;
+  });
+  const roundsScore = caculateScoreFromScoresArray(handsScore);
+  return roundsScore;
+};
 //game validation logic
 const doesItHaveTheCard = (cards:Card[][],playerIndex:OrderIndexType,requestedCard:Card): boolean => {
   const playerCards =  cards[playerIndex-1];
