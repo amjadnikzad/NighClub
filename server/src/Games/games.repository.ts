@@ -412,7 +412,7 @@ export class GamesRepository {
 
     const key = `games:${gameID}`;
     const handsPlayedPath = '$.currentRound.handsPlayed';
-
+    const trickWinner = 
     try {
       await this.redisClient.send_command(
         'JSON.ARRAPPEND',

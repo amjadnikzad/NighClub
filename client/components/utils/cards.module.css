@@ -1,0 +1,45 @@
+.rank1 {
+  display: inline-block;
+  position: absolute;
+  width: 20%;
+  text-align: center;
+  padding-left: 1px;
+  white-space: pre-wrap;
+  left: 0;
+  top: 0;
+}
+
+.rank2 {
+  display: inline-block;
+  position: absolute;
+  width: 20%;
+  text-align: center;
+  padding-left: 1px;
+  white-space: pre-wrap;
+  right: 0;
+  bottom: 0;
+  transform: rotate(180deg);
+}
+
+.suit2 {
+  display: inline-block;
+  position: absolute;
+  width: 20%;
+  text-align: center;
+  padding-left: 1px;
+  white-space: pre-wrap;
+  right: 0;
+  bottom: 28px;
+  transform: rotate(180deg);
+}
+
+.suit1 {
+  display: inline-block;
+  position: absolute;
+  width: 20%;
+  text-align: center;
+  padding-left: 1px;
+  white-space: pre-wrap;
+  left: 0;
+  top: 28px;
+}

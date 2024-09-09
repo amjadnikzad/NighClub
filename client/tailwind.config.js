@@ -1,4 +1,6 @@
 import {nextui} from '@nextui-org/theme'
+const plugin = require('tailwindcss/plugin');
+
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -16,5 +18,18 @@ module.exports = {
     },
   },
   darkMode: "class",
-  plugins: [nextui()],
+  plugins: [nextui(),plugin(function({addUtilities}) {
+    addUtilities({
+      '.backface-visible': {
+        'backface-visibility': 'visible',
+      },
+      '.backface-hidden': {
+        'backface-visibility': 'hidden',
+      }
+    })
+  })],
 }
+
+
+
+

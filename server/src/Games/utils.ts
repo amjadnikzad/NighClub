@@ -32,14 +32,8 @@ export const distributeDeck = (numPlayers: number, deck: Deck): Card[][] => {
   return hands;
 };
 
-export const heartsGameHandler = (game, payload) => {};
-
-const heartsRoundResolver = () => {};
-
-const heartsHandResolver = ({act}) => {
 
 
-};
 
 const getCardValue = (card: Card): number => {
   const rank = card.rank;
@@ -131,7 +125,7 @@ function sumArrays(array1: number[], array2: number[]): number[] {
 }
 
 export function isItOverScoreLimit(scores:number[],scoreLimit:number = 320):boolean {
-  return scores.some(score=>score >= scoreLimit);
+  return scores.some(score=> score >= scoreLimit);
 };
 
 export function caculateScoreFromScoresArray(roundsPlayed:number[][]):number[] {
@@ -157,6 +151,8 @@ export function CalculateRoundsScoreBaseOnHandsPlayed(handsPlayed:Card[][]):numb
   const roundsScore = caculateScoreFromScoresArray(handsScore);
   return roundsScore;
 };
+
+
 //game validation logic
 const doesItHaveTheCard = (cards:Card[][],playerIndex:OrderIndexType,requestedCard:Card): boolean => {
   const playerCards =  cards[playerIndex-1];
