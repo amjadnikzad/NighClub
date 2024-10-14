@@ -39,7 +39,7 @@ export default function RootLayout({
         )}
       >
 
-        <div className="relative flex flex-col h-screen">
+        <div className="relative flex flex-col h-screen overflow-hidden">
           <main style={{backgroundImage:' radial-gradient(ellipse at center 40%, #008d00 0, #000000 100%)'}} className="container  flex-grow">
             {children}
           </main>
