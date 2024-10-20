@@ -1,10 +1,12 @@
 import { Card, CardWithIndex } from "@/types";
 import { create } from "zustand";
 import { createDeck } from "../utils/game";
+import { Socket } from "socket.io-client";
 type ID = 1 | 2 | 3 | 4;
 
 type CardWithID = CardWithIndex;
 type GameStore = {
+  socket?: Socket;
   playerTurn: boolean;
   opponent1Turn: boolean;
   opponent2Turn: boolean;
@@ -15,9 +17,10 @@ type GameStore = {
   addCardToDeck: (card: CardWithID) => void;
   clearDeck: () => void;
   setResolve: (id: ID | null) => void;
+  // initializeSocket: () => void;
 };
 
-export const useGameStore = create<GameStore>((set) => ({
+export const useGameStore = create<GameStore>((set,get) => ({
   deck: [],
   opponent1Turn: false,
   opponent2Turn: false,
@@ -60,6 +63,14 @@ export const useGameStore = create<GameStore>((set) => ({
         break;
     }
   },
+  // initializeSocket: ()=>{
+  //   const socket = get().socket;
+  //   if(!socket){
+  //     set({socket:})
+  //   }else{
+  //     socket.connect()
+  //   }
+  // },
   addCardToDeck: (card) => {
     set((state) => ({ deck: [...state.deck, card] }));
   },
@@ -68,8 +79,6 @@ export const useGameStore = create<GameStore>((set) => ({
     set(() => ({ shouldReolve: id }));
   },
 }));
-
-
 
 const cards = createDeck();
 type cardStore = {
@@ -86,12 +95,12 @@ export const useCardsStore = create<cardStore>((set, get) => ({
       return null;
     }
     const randomIndex = Math.floor(Math.random() * cards.length);
-    console.log('random Index Is:',randomIndex);
-    console.log('cards Are:',cards);
+    console.log("random Index Is:", randomIndex);
+    console.log("cards Are:", cards);
     const updatedCards = cards.filter((v, i) => {
       return i !== randomIndex;
     });
-    console.log('updated Cards Are:',updatedCards);
+    console.log("updated Cards Are:", updatedCards);
     set({
       cards: updatedCards,
     });

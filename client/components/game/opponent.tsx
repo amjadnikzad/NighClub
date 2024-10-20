@@ -2,10 +2,10 @@
 import { memo, useEffect, useReducer, useState } from "react"
 
 import { Card, CardWithIndex, Rank, Suit } from "@/types"
-import CardTemplate from "./card";
-import { useCardsStore, useGameStore } from "./state/store";
-import { locations} from "./utils/game";
-import { whatIsTheRotation, wherCardShouldBe } from "./utils/card";
+import CardTemplate from "../card";
+import { useCardsStore, useGameStore } from "../state/store";
+import { locations} from "../utils/game";
+import { whatIsTheRotation, wherCardShouldBe } from "../utils/card";
 type StackCard = { card: CardWithIndex, stack: number };
 
 type GameStore = {
@@ -107,7 +107,7 @@ function Opponent({ id, resolveTo }: OpponentPropsType) {
 
     };
     const cordinates = locations();
-    const disterbuteCards = (cards: PlayerCardsState) => (cards.playerCards.map((card, i) => <CardTemplate cardIndex={(i * 4) + 1} key={(i * 4) + 1} rotation={whatIsTheRotation(cards, card.cardIndex, i, id)} card={card} ownedByPlayer={false} loactaion={wherCardShouldBe(cards, card.cardIndex, i, id, cordinates)} flipped={shouldFlip(cards, card.cardIndex, i)} clickHandler={() => { }} />))
+    const disterbuteCards = (cards: PlayerCardsState) => (cards.playerCards.map((card, i) => <CardTemplate cardIndex={(i * 4) + 1} key={`${1}i`} rotation={whatIsTheRotation(cards, card.cardIndex, i, id)} card={card} ownedByPlayer={false} loactaion={wherCardShouldBe(cards, card.cardIndex, i, id, cordinates)} flipped={shouldFlip(cards, card.cardIndex, i)} clickHandler={() => { }} />))
     return (
         <>
             {disterbuteCards(cardsState)}

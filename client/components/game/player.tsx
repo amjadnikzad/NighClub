@@ -1,10 +1,10 @@
 'use client'
-import { useEffect, useReducer } from "react"
+import { memo, useEffect, useReducer } from "react"
 
 import {  CardWithIndex, Rank, Suit } from "@/types"
-import CardTemplate from "./card";
-import { useGameStore } from "./state/store";
-import { whatIsTheRotation, wherCardShouldBe } from "./utils/card";
+import CardTemplate from "../card";
+import { useGameStore } from "../state/store";
+import { whatIsTheRotation, wherCardShouldBe } from "../utils/card";
 
 
 
@@ -50,7 +50,7 @@ type PlayeTypes = {
 
 }
 
-export default function Player(props: PlayeTypes) {
+const Player = memo((props: PlayeTypes) => {
     const [cardsState, dispatch] = useReducer(reducer, initailState);
 
     const isItPlayerTurn = useGameStore((state) => (state.playerTurn));
@@ -59,7 +59,7 @@ export default function Player(props: PlayeTypes) {
     const clearDeck = useGameStore((state) => state.clearDeck);
     const setResolve = useGameStore((state) => state.setResolve);
 
-
+    console.log('player component rendered');
     useEffect(
         () => {
             if (props.resolveTo) {
@@ -85,11 +85,12 @@ export default function Player(props: PlayeTypes) {
         if (cardsOnStack.some(obj => obj?.card.cardIndex === cardIndex)) { return true } else return false;
 
     };
-    const disterbuteCards = (cards: PlayerCardsState) => (cardSetWithIndex.map((card, i) => <CardTemplate cardIndex={(i * 4) + 1} key={(i * 4) + 1} rotation={whatIsTheRotation(cards,card.cardIndex,i)} card={card} ownedByPlayer loactaion={wherCardShouldBe(cards, card.cardIndex, i,1,props.cordinates)} flipped={shouldFlip(cards,card.cardIndex,i)} clickHandler={cardHandleClick} />))
+    const disterbuteCards = (cards: PlayerCardsState) => (cardSetWithIndex.map((card, i) => <CardTemplate cardIndex={(i * 4) + 1} key={`${1}i`} rotation={whatIsTheRotation(cards,card.cardIndex,i)} card={card} ownedByPlayer loactaion={wherCardShouldBe(cards, card.cardIndex, i,1,props.cordinates)} flipped={shouldFlip(cards,card.cardIndex,i)} clickHandler={cardHandleClick} />))
     return (
         <>
             {disterbuteCards(cardsState)}
         </>
     )
-}
+});
+export default Player;
 
