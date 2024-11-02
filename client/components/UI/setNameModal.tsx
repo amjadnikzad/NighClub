@@ -15,13 +15,13 @@ interface Loaderprops {
 
 export default function SetNameModal({controls}:Loaderprops){
     
-    const submitHandler = ()=>console.log('submit clicked')
+    const submitHandler = ()=>controls.onSubmit();
     return(
         <FormModal controls={{isOpen:controls.isOpen,onSubmit:submitHandler,onClose:controls.onClose}} title="Please enter a name">
             <Input
                   autoFocus
-                  label="Email"
-                  placeholder="Enter your email"
+                  label="User Name"
+                  placeholder="Please Enter a username"
                   variant="bordered"
                 />
         </FormModal>

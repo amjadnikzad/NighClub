@@ -9,16 +9,16 @@ import SpinnerModal from "@/components/UI/SpinnerModal"
 import { useLocalStorage } from "@uidotdev/usehooks"
 import FormModal from "@/components/UI/formModal"
 import SetNameModal from "@/components/UI/setNameModal"
-import { getFromLocalStorage } from "@/components/utils/utils";
+import { getFromLocalStorage, setToLocalStorage } from "@/components/utils/utils";
 import { useRouter } from "next/navigation";
 
 
 
 export default function Component() {
     const router = useRouter();
-    const { isOpen: setNameIsOPen, onOpen: setNameOnOpen, onClose: seNameOnClose } = useDisclosure();
+    const { isOpen: setNameIsOPen, onOpen: setNameOnOpen, onClose: setNameOnClose } = useDisclosure();
     const createGameHandler = async () => {
-        const name = getFromLocalStorage('name');
+        const name = getFromLocalStorage('Uname');
         if (!name) setNameOnOpen();
         else {
             onOpen();
@@ -47,9 +47,13 @@ export default function Component() {
 
     };
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const nameModalSubmit = () => {
+        setToLocalStorage('Uname','amjad');
+        setNameOnClose();
+    };
     return (
         <>
-            <SetNameModal controls={{ isOpen: setNameIsOPen, onOpen: setNameOnOpen, onClose: seNameOnClose, onSubmit: () => { } }} />
+            <SetNameModal controls={{ isOpen: setNameIsOPen, onOpen: setNameOnOpen, onClose: setNameOnClose, onSubmit: nameModalSubmit }} />
             <div className="flex min-h-screen items-center justify-center bg-background p-4 ">
                 <div className="w-full max-w-sm space-y-4 rounded-lg border border-border  p-6 shadow-sm ">
 
