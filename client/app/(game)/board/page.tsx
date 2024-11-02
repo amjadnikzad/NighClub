@@ -9,8 +9,8 @@ import { useMemo } from "react";
 
 
 export default function BlogPage() {
-  useResolve();
-  const shouldResolve = useGameStore((state) => state.shouldReolve);
+  
+  const shouldResolve = null;
   const cordinates = locations();
   const memoizedCordinates = useMemo(()=> cordinates,[]);
   return (

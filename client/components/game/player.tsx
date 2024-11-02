@@ -5,6 +5,7 @@ import {  CardWithIndex, Rank, Suit } from "@/types"
 import CardTemplate from "../card";
 import { useGameStore } from "../state/store";
 import { whatIsTheRotation, wherCardShouldBe } from "../utils/card";
+import useResolve from "../hocks/useResolve";
 
 
 
@@ -53,6 +54,8 @@ type PlayeTypes = {
 const Player = memo((props: PlayeTypes) => {
     const [cardsState, dispatch] = useReducer(reducer, initailState);
 
+    useResolve();
+    
     const isItPlayerTurn = useGameStore((state) => (state.playerTurn));
     const setTurn = useGameStore((state) => (state.setTurn));
     const drawCard = useGameStore((state) => (state.addCardToDeck));
