@@ -55,7 +55,8 @@ const Player = memo((props: PlayeTypes) => {
     const [cardsState, dispatch] = useReducer(reducer, initailState);
 
     useResolve();
-    
+    const resolveTo = useGameStore((state) => state.shouldReolve);
+
     const isItPlayerTurn = useGameStore((state) => (state.playerTurn));
     const setTurn = useGameStore((state) => (state.setTurn));
     const drawCard = useGameStore((state) => (state.addCardToDeck));
@@ -65,15 +66,15 @@ const Player = memo((props: PlayeTypes) => {
     console.log('player component rendered');
     useEffect(
         () => {
-            if (props.resolveTo) {
+            if (resolveTo) {
                 setTimeout(() => {
-                    dispatch({ type: 'AddCardToStack', payload: props.resolveTo as number });
+                    dispatch({ type: 'AddCardToStack', payload: resolveTo as number });
                     setResolve(null);
                     clearDeck();
                 }, 1500)
 
             }
-        }, [props.resolveTo]
+        }, [resolveTo]
     )
     const cardHandleClick = (card: CardWithIndex) => {
         if (isItPlayerTurn) {
