@@ -1,13 +1,8 @@
 "use client";
 
 import { Button } from "@nextui-org/button"
-
-import { Modal, ModalContent, useDisclosure } from "@nextui-org/modal"
-import { Spinner } from "@nextui-org/spinner"
-import { useState } from "react"
+import { useDisclosure } from "@nextui-org/modal"
 import SpinnerModal from "@/components/UI/SpinnerModal"
-import { useLocalStorage } from "@uidotdev/usehooks"
-import FormModal from "@/components/UI/formModal"
 import SetNameModal from "@/components/UI/setNameModal"
 import { getFromLocalStorage, setToLocalStorage } from "@/components/utils/utils";
 import { useRouter } from "next/navigation";

@@ -58,8 +58,8 @@ type OpponentPropsType = {
 // const cardSet = [{ suit: Suit.Diamonds, rank: Rank.Ace }, { suit: Suit.Diamonds, rank: Rank.Two }, { suit: Suit.Diamonds, rank: Rank.Three }, { suit: Suit.Diamonds, rank: Rank.Four }, { suit: Suit.Diamonds, rank: Rank.Five }, { suit: Suit.Diamonds, rank: Rank.Six }, { suit: Suit.Diamonds, rank: Rank.Seven }, { suit: Suit.Diamonds, rank: Rank.Eight }, { suit: Suit.Diamonds, rank: Rank.Nine }, { suit: Suit.Diamonds, rank: Rank.Ten }, { suit: Suit.Diamonds, rank: Rank.Jack }, { suit: Suit.Diamonds, rank: Rank.Queen }, { suit: Suit.Diamonds, rank: Rank.King }];
 const cardSet = [null, null, null, null, null, null, null, null, null, null, null, null, null];
 
-function Opponent({ id, resolveTo }: OpponentPropsType) {
-
+function Opponent({ id }: OpponentPropsType) {
+    const resolveTo = useGameStore((state) => state.shouldReolve);
     const cardSetWithIndex = cardSet.map((card, i) => ({ card: card, cardIndex: (i * 4) + id })) as CardWithIndex[];
     const initailState = { cardsInHand: cardSetWithIndex, cardTobePlayed: null, playerCards: cardSetWithIndex, playedCards: [] as StackCard[] };
     const [cardsState, dispatch] = useReducer(reducer, initailState);
