@@ -88,7 +88,7 @@ const Player = memo((props: PlayeTypes) => {
         if (cardsOnStack.some(obj => obj?.card.cardIndex === cardIndex)) { return true } else return false;
 
     };
-    const disterbuteCards = (cards: PlayerCardsState) => (cardSetWithIndex.map((card, i) => <CardTemplate cardIndex={(i * 4) + 1} key={`${1}i`} rotation={whatIsTheRotation(cards,card.cardIndex,i)} card={card} ownedByPlayer loactaion={wherCardShouldBe(cards, card.cardIndex, i,1,props.cordinates)} flipped={shouldFlip(cards,card.cardIndex,i)} clickHandler={cardHandleClick} />))
+    const disterbuteCards = (cards: PlayerCardsState) => (cardSetWithIndex.map((card, i) => <CardTemplate cardIndex={(i * 4) + 1} key={`${1+i.toString()}`} rotation={whatIsTheRotation(cards,card.cardIndex,i)} card={card} ownedByPlayer loactaion={wherCardShouldBe(cards, card.cardIndex, i,1,props.cordinates)} flipped={shouldFlip(cards,card.cardIndex,i)} clickHandler={cardHandleClick} />))
     return (
         <>
             {disterbuteCards(cardsState)}
