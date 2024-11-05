@@ -46,7 +46,6 @@ const cardSetWithIndex = cardSet.map((card, i) => ({ card: card, cardIndex: (i *
 const initailState = { cardsInHand: cardSetWithIndex, cardTobePlayed: null, playedCards: [] as StackCard[] };
 
 type PlayeTypes = {
-    resolveTo: number | null,
     cordinates: [number, number]
 
 }

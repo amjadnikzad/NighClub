@@ -15,10 +15,10 @@ export default function BlogPage() {
   const memoizedCordinates = useMemo(()=> cordinates,[]);
   return (
     <div style={{backgroundImage:' radial-gradient(ellipse at center 40%, #008d00 0, #000000 100%)'}} className=" h-full">
-      <Player cordinates={cordinates} resolveTo={shouldResolve} />
-      <Opponent key={2}  id={2} resolveTo={shouldResolve} />
-      <Opponent key={3} id={3} resolveTo={shouldResolve} />
-      <Opponent key={4} id={4} resolveTo={shouldResolve} />
+      <Player cordinates={cordinates}  />
+      <Opponent key={2}  id={2}  />
+      <Opponent key={3} id={3}  />
+      <Opponent key={4} id={4}  />
     </div>
   );
 }
